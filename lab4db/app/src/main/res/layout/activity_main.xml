@@ -14,7 +14,7 @@
         android:inputType="textPersonName"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="41dp"
-        tools:layout_editor_absoluteY="46dp" />
+        tools:layout_editor_absoluteY="89dp" />
 
     <EditText
         android:id="@+id/editTextName"
