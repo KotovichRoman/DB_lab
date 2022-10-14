@@ -6,15 +6,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
-    BufferedWriter bw;
+    File f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         String fname = "Base_Lab.txt";
-        File f = new File(super.getFilesDir(), fname);
+        f = new File(super.getFilesDir(), fname);
         boolean rc = ExistBase(fname);
 
         if (!rc) {
@@ -45,23 +50,24 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Log_02", "Файл " + fname + " не создан");
             }
         }
-
-        try {
-            FileWriter fw = new FileWriter(f, true);
-            bw = new BufferedWriter(fw);
+        else {
+            ReadLine();
         }
-        catch (IOException e) {
-            Log.d("Log_02", "Файл " + fname + " не открыт" + e.getMessage());
-        }
-
-        InputClick();
     }
 
-    private void InputClick() {
+    public void InputClick(View view) {
         EditText name = findViewById(R.id.editTextName);
         EditText surname = findViewById(R.id.editTextSurname);
+        if (name.getText().toString().trim().length() >= 1 &&
+                surname.getText().toString().trim().length() >= 1) {
+            WriteLine(surname.getText().toString(), name.getText().toString());
 
-        WriteLine(surname.getText().toString(), name.getText().toString());
+            name.setText("");
+            surname.setText("");
+        }
+        else {
+            Toast.makeText(this, "Введите ключ и значение", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean ExistBase(String fname) {
@@ -78,13 +84,47 @@ public class MainActivity extends AppCompatActivity {
 
     private void WriteLine(String surname, String name) {
         String s = surname + ";" + name + ";" + "\r\n";
-        Log.d("Log_02", s);
         try {
+            FileWriter fw = new FileWriter(f, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+
             bw.write(s);
+
+            bw.close();
+            fw.close();
+
             Log.d("Log_02", "Данные записаны");
         }
         catch (IOException e) {
-            Log.d("Log_02", e.getMessage());
+            Log.d("Log_02", "Данные не записаны");
+        }
+
+        ReadLine();
+    }
+
+    private void ReadLine() {
+        try {
+            FileReader fr = new FileReader(f);
+            BufferedReader br = new BufferedReader(fr);
+            TextView resultRead = findViewById(R.id.readResult);
+
+            String line = "";
+            resultRead.setText("");
+
+            try {
+                while ((line = br.readLine()) != null) {
+                    resultRead.append(line + "\n");
+                }
+                Log.d("Log_02", "Данные прочитаны");
+            } catch (IOException e) {
+                Log.d("Log_02", e.getMessage());
+            }
+
+            br.close();
+            fr.close();
+        }
+        catch (IOException e) {
+            Log.d("Log_02", "Файл не открыт");
         }
     }
 }
